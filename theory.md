@@ -40,11 +40,7 @@ Small baseline means high uncertainty in depth.
 
 COLMAP first detects interest points in each image and computes a descriptor for each one. In many setups, this is SIFT-based.
 
-Example command already used in this repository:
-
-```bash
-docker run --rm --gpus all -v .:/data colmap/colmap colmap feature_extractor --database_path /data/database.db --image_path /data/imgs/
-```
+See the Extracting features step in [readme.md](readme.md).
 
 This stores detected keypoints and descriptors in `database.db`.
 
@@ -98,11 +94,7 @@ The descriptor should satisfy:
 
 Once descriptors are available, the next step is to match features across image pairs.
 
-For smaller image sets, COLMAP commonly uses exhaustive matching:
-
-```bash
-docker run --rm --gpus all -v .:/data colmap/colmap colmap exhaustive_matcher --database_path /data/database.db
-```
+For smaller image sets, see the Matching features step in [readme.md](readme.md).
 
 For larger or ordered datasets, alternatives such as sequential or vocabulary-tree matching are more efficient.
 
@@ -158,12 +150,7 @@ COLMAP uses robust estimators such as RANSAC to fit this geometry while rejectin
 
 After verified matches exist, COLMAP estimates camera poses and triangulates a sparse 3D point cloud.
 
-Typical command:
-
-```bash
-mkdir -p sparse
-docker run --rm --gpus all -v .:/data colmap/colmap colmap mapper --database_path /data/database.db --image_path /data/imgs --output_path /data/sparse
-```
+See the Sparse reconstruction step in [readme.md](readme.md).
 
 This creates one or more sparse models in the `sparse/` directory.
 
@@ -289,10 +276,7 @@ If metric scale is needed, you must add extra information, for example:
 
 Before dense stereo, COLMAP often creates undistorted images and a workspace for dense reconstruction:
 
-```bash
-mkdir -p dense
-docker run --rm --gpus all -v .:/data colmap/colmap colmap image_undistorter --image_path /data/imgs --input_path /data/sparse/0 --output_path /data/dense --output_type COLMAP
-```
+See the Image undistortion step in [readme.md](readme.md).
 
 ### Theory
 
@@ -316,9 +300,7 @@ Undistortion remaps the images so that the pinhole projection model is a better 
 
 COLMAP estimates a depth map for each image:
 
-```bash
-docker run --rm --gpus all -v .:/data colmap/colmap colmap patch_match_stereo --workspace_path /data/dense --workspace_format COLMAP --PatchMatchStereo.geom_consistency true
-```
+See the Dense reconstruction (+GPU) step in [readme.md](readme.md).
 
 ### Theory
 
@@ -358,9 +340,7 @@ This suppresses many false depth estimates on weakly textured or occluded region
 
 Each image now has a depth map. These are fused into a single dense point cloud:
 
-```bash
-docker run --rm --gpus all -v .:/data colmap/colmap colmap stereo_fusion --workspace_path /data/dense --workspace_format COLMAP --input_type geometric --output_path /data/dense/fused.ply
-```
+See the Dense reconstruction (+GPU) step in [readme.md](readme.md).
 
 ### Theory
 
@@ -389,15 +369,7 @@ After dense fusion, you can convert the dense point cloud into a mesh.
 
 Common options include Poisson meshing and Delaunay meshing.
 
-Example commands:
-
-```bash
-docker run --rm --gpus all -v .:/data colmap/colmap colmap poisson_mesher --input_path /data/dense/fused.ply --output_path /data/dense/meshed-poisson.ply
-```
-
-```bash
-docker run --rm --gpus all -v .:/data colmap/colmap colmap delaunay_mesher --input_path /data/dense --output_path /data/dense/meshed-delaunay.ply
-```
+This is an optional follow-on step after the Dense reconstruction (+GPU) step in [readme.md](readme.md).
 
 ### Theory
 
@@ -459,19 +431,10 @@ Each stage depends on the geometry estimated by the previous one. If matching is
 
 Assuming feature extraction has already been completed, a practical next sequence is:
 
-```bash
-docker run --rm --gpus all -v .:/data colmap/colmap colmap exhaustive_matcher --database_path /data/database.db
-
-mkdir -p sparse
-docker run --rm --gpus all -v .:/data colmap/colmap colmap mapper --database_path /data/database.db --image_path /data/imgs --output_path /data/sparse
-
-mkdir -p dense
-docker run --rm --gpus all -v .:/data colmap/colmap colmap image_undistorter --image_path /data/imgs --input_path /data/sparse/0 --output_path /data/dense --output_type COLMAP
-
-docker run --rm --gpus all -v .:/data colmap/colmap colmap patch_match_stereo --workspace_path /data/dense --workspace_format COLMAP --PatchMatchStereo.geom_consistency true
-
-docker run --rm --gpus all -v .:/data colmap/colmap colmap stereo_fusion --workspace_path /data/dense --workspace_format COLMAP --input_type geometric --output_path /data/dense/fused.ply
-```
+1. Follow the Matching features step in [readme.md](readme.md).
+2. Follow the Sparse reconstruction step in [readme.md](readme.md).
+3. Follow the Image undistortion step in [readme.md](readme.md).
+4. Follow the Dense reconstruction (+GPU) step in [readme.md](readme.md).
 
 If `sparse/0` does not exist, inspect the `sparse/` directory because COLMAP may output a different model index.
 
