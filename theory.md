@@ -426,28 +426,3 @@ The order is not arbitrary.
 7. Meshing converts samples into a surface.
 
 Each stage depends on the geometry estimated by the previous one. If matching is poor, SfM fails. If SfM camera poses are inaccurate, dense stereo will also be inaccurate.
-
-## 13. Minimal Command Sequence for This Repository
-
-Assuming feature extraction has already been completed, a practical next sequence is:
-
-1. Follow the Matching features step in [readme.md](readme.md).
-2. Follow the Sparse reconstruction step in [readme.md](readme.md).
-3. Follow the Image undistortion step in [readme.md](readme.md).
-4. Follow the Dense reconstruction (+GPU) step in [readme.md](readme.md).
-
-If `sparse/0` does not exist, inspect the `sparse/` directory because COLMAP may output a different model index.
-
-## 14. Mental Model Summary
-
-The shortest useful mental model is:
-
-- Features answer: what image points are distinctive?
-- Matching answers: which points correspond across images?
-- SfM answers: where were the cameras, and where are some 3D points?
-- Bundle adjustment answers: what configuration best explains all observations jointly?
-- Dense stereo answers: what is the depth of most pixels?
-- Fusion answers: how do all those depth maps become one 3D model?
-- Meshing answers: what continuous surface best explains the dense samples?
-
-That is the full bridge from pixels to 3D geometry.

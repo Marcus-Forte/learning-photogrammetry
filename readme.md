@@ -7,17 +7,17 @@ This repository contains practical examples of how to use [colmap](https://colma
 Attention to the GPU flag. If you have a GPU, set it to 1, otherwise set it to 0.
 
 ```bash
-docker run --init --rm --gpus all -v .:/data colmap/colmap colmap feature_extractor --database_path /data/database.db --image_path /data/imgs/
+docker run --init --rm --gpus all -v .:/data colmap/colmap colmap feature_extractor --database_path /data/database.db --image_path /data/imgs/ --FeatureExtraction.use_gpu 1
 ``` 
 
 ## Matching features
 
 ```bash
-docker run --init --rm --gpus all -v .:/data colmap/colmap colmap exhaustive_matcher --database_path /data/database.db
+docker run --init --rm --gpus all -v .:/data colmap/colmap colmap exhaustive_matcher --database_path /data/database.db --FeatureMatching.use_gpu 1
 ```
 
 ```bash
-docker run --init --rm --gpus all -v .:/data colmap/colmap colmap sequential_matcher --database_path /data/database.db
+docker run --init --rm --gpus all -v .:/data colmap/colmap colmap sequential_matcher --database_path /data/database.db --FeatureMatching.use_gpu 1
 ```
 
 ## Sparse reconstruction
@@ -36,7 +36,8 @@ docker run --init --rm --gpus all -v .:/data colmap/colmap colmap model_converte
 ## Image undistortion
 
 ```bash
-docker run --init --rm --gpus all -v .:/data colmap/colmap colmap image_undistorter --image_path /data/imgs --input_path /data/sparse/0 --output_path /data/dense --output_type COLMAP --max_image_size 8192
+mkdir -p dense
+docker run --init --rm --gpus all -v .:/data colmap/colmap colmap image_undistorter --image_path /data/imgs --input_path /data/sparse/0 --output_path /data/dense --output_type COLMAP --max_image_size 2000
 ```
 
 ## Dense reconstruction (+GPU)
