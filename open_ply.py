@@ -22,13 +22,25 @@ def main() -> None:
         default=3.0,
         help="Point size used by the Open3D visualizer",
     )
+    parser.add_argument(
+        "--voxel-size",
+        type=float,
+        help="Optional voxel size for point-cloud subsampling before visualization",
+    )
     args = parser.parse_args()
 
     if not args.ply.is_file():
         print(f"Error: File '{args.ply}' does not exist.")
         return
 
+    if args.voxel_size is not None and args.voxel_size <= 0:
+        print("Error: --voxel-size must be greater than 0.")
+        return
+
     point_cloud = o3d.io.read_point_cloud(str(args.ply))
+
+    if args.voxel_size is not None:
+        point_cloud = point_cloud.voxel_down_sample(voxel_size=args.voxel_size)
 
     origin_axis = o3d.geometry.TriangleMesh.create_coordinate_frame(size=1.0, origin=[0.0, 0.0, 0.0])
 

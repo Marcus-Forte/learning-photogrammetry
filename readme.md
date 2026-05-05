@@ -55,3 +55,9 @@ docker run --init --rm --gpus all -v .:/data colmap/colmap colmap stereo_fusion 
 ```bash
 uv run open_ply.py --ply <path_to_ply>
 ```
+
+Optional point-cloud subsampling:
+
+```bash
+uv run open_ply.py --ply <path_to_ply> --voxel-size 0.02
+```
